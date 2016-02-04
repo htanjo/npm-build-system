@@ -1,0 +1,61 @@
+{
+  "private": true,
+  "scripts": {
+    "start": "npm-run-all --parallel serve watch:*",
+    "test": "npm-run-all --parallel lint:*",
+    "build": "npm-run-all --parallel build:*",
+    "prebuild": "npm-run-all lint:* clean:dist",
+    "lint:scripts": "eslint --ignore-pattern \"**/*.min.js,**/vendor/**\" app/scripts/",
+    "clean:tmp": "rimraf .tmp/",
+    "clean:dist": "rimraf dist/",
+    "build-dev:styles": "npm-run-all build-dev:styles:*",
+    "build-dev:styles:sass": "node-sass app/styles/ --output .tmp/styles/",
+    "build-dev:styles:postcss": "postcss --use autoprefixer --replace \".tmp/styles/**/*.css\"",
+    "build:styles": "npm-run-all build:styles:*",
+    "build:styles:sass": "node-sass app/styles/ --output dist/styles/",
+    "build:styles:postcss": "postcss --use autoprefixer --use cssnano --replace \"dist/styles/**/*.css\"",
+    "build:scripts": "globify \"app/scripts/*.js\" --outfile dist/scripts/ --plugin [minifyify --no-map]",
+    "build:images": "imagemin \"app/images/**/*.{gif,jpg,png,svg}\" dist/images/",
+    "build:copy": "cpy \"**/*.*\" \"!{styles,scripts,images}/**\" ../dist/ --cwd app --parents",
+    "watch:styles": "chokidar \"app/styles/**/*.scss\" -c \"npm run build-dev:styles\"",
+    "watch:scripts": "npm-run-all --parallel watch:scripts:*",
+    "watch:scripts:lint": "chokidar \"app/scripts/**/*.js\" -c \"npm run lint:scripts\"",
+    "watch:scripts:build-dev": "globify \"app/scripts/*.js\" --outfile .tmp/scripts/ --watch",
+    "serve": "browser-sync start --server .tmp --server app --no-notify --files \"app/**/*.html,.tmp/**\"",
+    "preserve": "npm-run-all clean:tmp build-dev:*",
+    "serve:dist": "browser-sync start --server dist --no-notify"
+  },
+  "devDependencies": {
+    "autoprefixer": "^6.2.3",
+    "browser-sync": "^2.11.0",
+    "browserify": "^13.0.0",
+    "chokidar-cli": "^1.2.0",
+    "cpy-cli": "^1.0.0",
+    "cssnano": "^3.4.0",
+    "eslint": "^1.10.3",
+    "eslint-config-xo": "^0.9.1",
+    "globify": "^1.2.1",
+    "imagemin-cli": "^2.1.0",
+    "minifyify": "^7.2.1",
+    "node-sass": "^3.4.2",
+    "npm-run-all": "^1.5.1",
+    "postcss-cli": "^2.3.3",
+    "rimraf": "^2.5.1",
+    "watchify": "^3.7.0"
+  },
+  "eslintConfig": {
+    "extends": "xo",
+    "env": {
+      "browser": true
+    },
+    "rules": {
+      "indent": [
+        2,
+        2,
+        {
+          "SwitchCase": 1
+        }
+      ]
+    }
+  }
+}
